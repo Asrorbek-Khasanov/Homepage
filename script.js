@@ -4,26 +4,128 @@
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
   const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const root = document.documentElement;
   const body = document.body;
+  const store = {
+    get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+  };
 
-  /* ---------------- Split hero title into letters ---------------- */
-  $$('.split').forEach((el) => {
+  /* =======================================================
+     Text helpers: split letters (hero) and words (scrub)
+     ======================================================= */
+  const splitChars = (el, animate) => {
     const text = el.textContent;
     el.textContent = '';
     el.setAttribute('aria-label', text);
     [...text].forEach((ch, i) => {
       const s = document.createElement('span');
-      s.className = 'char';
+      s.className = animate ? 'char char--pre' : 'char';
       s.style.setProperty('--ci', i);
       s.setAttribute('aria-hidden', 'true');
       s.textContent = ch;
       el.appendChild(s);
     });
+    if (animate) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        $$('.char--pre', el).forEach((c) => c.classList.remove('char--pre'));
+      }));
+    }
+  };
+
+  const splitWords = (el) => {
+    const words = el.textContent.trim().split(/\s+/);
+    el.textContent = '';
+    el._words = words.map((w, i) => {
+      const s = document.createElement('span');
+      s.className = 'w';
+      s.textContent = w;
+      el.appendChild(s);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+      return s;
+    });
+  };
+
+  /* =======================================================
+     i18n
+     ======================================================= */
+  const LANGS = ['uz', 'en', 'ru'];
+  const detectLang = () => {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (LANGS.includes(q)) return q;
+    const saved = store.get('lang');
+    if (LANGS.includes(saved)) return saved;
+    const nav = (navigator.language || 'uz').slice(0, 2).toLowerCase();
+    return LANGS.includes(nav) ? nav : 'uz';
+  };
+  let lang = detectLang();
+
+  const applyLang = (l, animate) => {
+    const dict = window.I18N[l];
+    if (!dict) return;
+    lang = l;
+    root.lang = l;
+    document.title = dict['meta.title'];
+    const desc = $('meta[name="description"]');
+    if (desc) desc.setAttribute('content', dict['meta.desc']);
+
+    $$('[data-i18n]').forEach((el) => {
+      const v = dict[el.dataset.i18n];
+      if (v == null) return;
+      el.textContent = v;
+      if (el.classList.contains('split')) splitChars(el, animate);
+      if (el.hasAttribute('data-scrub')) splitWords(el);
+    });
+    $$('[data-i18n-cursor]').forEach((el) => { el.dataset.cursor = dict[el.dataset.i18nCursor] || ''; });
+    $$('.roll').forEach((el) => {
+      const inner = el.querySelector(':scope > span');
+      if (inner) el.dataset.text = inner.textContent;
+    });
+    $$('.lang__btn').forEach((b) => {
+      const on = b.dataset.lang === l;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on);
+    });
+    scrubAll();
+  };
+
+  $$('.lang__btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const l = btn.dataset.lang;
+      if (l === lang) return;
+      store.set('lang', l);
+      const url = new URL(location.href);
+      url.searchParams.set('lang', l);
+      history.replaceState(null, '', url);
+      if (reduced) { applyLang(l, false); return; }
+      body.classList.add('is-switching');
+      setTimeout(() => {
+        applyLang(l, true);
+        body.classList.remove('is-switching');
+      }, 250);
+    });
   });
 
-  /* ---------------- Preloader ---------------- */
+  /* Word-by-word scroll scrub */
+  const scrubAll = () => {
+    $$('[data-scrub]').forEach((el) => {
+      const spans = el._words || [];
+      const r = el.getBoundingClientRect();
+      const p = (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35);
+      const n = Math.floor(clamp(p, 0, 1) * spans.length);
+      spans.forEach((s, i) => s.classList.toggle('on', i < n));
+    });
+  };
+  addEventListener('scroll', scrubAll, { passive: true });
+
+  applyLang(lang, false);
+
+  /* =======================================================
+     Preloader
+     ======================================================= */
   const countEl = $('#loadCount');
   const barEl = $('#loadBar');
   let progress = 0;
@@ -44,7 +146,9 @@
     tick();
   }
 
-  /* ---------------- Clock (Tashkent) ---------------- */
+  /* =======================================================
+     Clock (Uzbekistan time)
+     ======================================================= */
   const clock = $('#clock');
   const fmt = new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Tashkent',
@@ -53,29 +157,35 @@
   updateClock();
   setInterval(updateClock, 1000);
 
-  /* ---------------- Theme toggle ---------------- */
+  /* =======================================================
+     Theme toggle
+     ======================================================= */
   $('#themeToggle').addEventListener('click', () => {
-    const root = document.documentElement;
     const next = root.dataset.theme === 'light' ? 'dark' : 'light';
     root.dataset.theme = next;
-    try { localStorage.setItem('theme', next); } catch (e) { /* ignore */ }
+    store.set('theme', next);
   });
 
-  /* ---------------- Custom cursor ---------------- */
-  const mouse = { x: innerWidth / 2, y: innerHeight / 2 };
+  /* =======================================================
+     Cursor
+     ======================================================= */
+  const mouse = { x: innerWidth / 2, y: innerHeight / 2, last: 0 };
   const cur = { x: mouse.x, y: mouse.y };
   const cursor = $('.cursor');
   const cursorLabel = $('.cursor__label');
 
-  addEventListener('pointermove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  addEventListener('pointermove', (e) => {
+    mouse.x = e.clientX; mouse.y = e.clientY; mouse.last = performance.now();
+  }, { passive: true });
 
   if (finePointer) {
     $$('a, button').forEach((el) => {
       el.addEventListener('mouseenter', () => cursor.classList.add('is-hover'));
       el.addEventListener('mouseleave', () => cursor.classList.remove('is-hover'));
     });
-    $$('[data-cursor]').forEach((el) => {
+    $$('[data-cursor], [data-i18n-cursor]').forEach((el) => {
       el.addEventListener('mouseenter', () => {
+        if (!el.dataset.cursor) return;
         cursorLabel.textContent = el.dataset.cursor;
         cursor.classList.add('has-label');
       });
@@ -83,67 +193,74 @@
     });
   }
 
-  /* ---------------- Magnetic elements ---------------- */
+  /* Magnetic elements */
   if (finePointer && !reduced) {
     $$('[data-magnetic]').forEach((el) => {
       const strength = el.classList.contains('contact__btn') ? 0.4 : 0.25;
+      const inner = el.firstElementChild;
       el.addEventListener('mousemove', (e) => {
         const r = el.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
         const dy = e.clientY - (r.top + r.height / 2);
         el.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
-        const inner = el.firstElementChild;
         if (inner) inner.style.transform = `translate(${dx * strength * 0.5}px, ${dy * strength * 0.5}px)`;
       });
       el.addEventListener('mouseleave', () => {
         el.style.transform = '';
-        const inner = el.firstElementChild;
         if (inner) inner.style.transform = '';
       });
     });
   }
 
-  /* ---------------- Work preview follows cursor ---------------- */
-  const preview = $('.work__preview');
-  const previewInner = $('.work__preview-inner');
-  const previewTitle = $('.work__preview-title');
+  /* =======================================================
+     Publication preview following the cursor
+     ======================================================= */
+  const preview = $('.pub-preview');
+  const previewInner = $('.pub-preview__inner');
+  const previewTag = $('.pub-preview__tag');
   const prev = { x: mouse.x, y: mouse.y, rot: 0 };
   if (finePointer) {
-    $$('.work__item').forEach((item) => {
+    $$('.pub').forEach((item) => {
       item.addEventListener('mouseenter', () => {
         const c1 = item.dataset.color, c2 = item.dataset.color2 || c1;
         previewInner.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
-        previewTitle.textContent = $('.work__title', item).textContent;
+        previewTag.textContent = item.dataset.tag;
         preview.classList.add('is-on');
       });
       item.addEventListener('mouseleave', () => preview.classList.remove('is-on'));
     });
   }
 
-  /* ---------------- Interactive dot field (hero) ---------------- */
+  /* =======================================================
+     Hero: crystal lattice that bonds around the cursor
+     ======================================================= */
   const canvas = $('#field');
   const ctx = canvas.getContext('2d');
-  let dots = [], cw = 0, ch = 0, dpr = 1, inkColor = '#fff', accentColor = '#d4ff3a';
+  let dots = [], cols = 0, cw = 0, ch = 0, inkColor = '#fff', accentColor = '#d4ff3a';
   const readColors = () => {
-    const cs = getComputedStyle(document.documentElement);
+    const cs = getComputedStyle(root);
     inkColor = cs.getPropertyValue('--ink').trim();
     accentColor = cs.getPropertyValue('--accent').trim();
   };
   const buildField = () => {
-    dpr = Math.min(devicePixelRatio || 1, 2);
+    const dpr = Math.min(devicePixelRatio || 1, 2);
     cw = canvas.offsetWidth; ch = canvas.offsetHeight;
     canvas.width = cw * dpr; canvas.height = ch * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const gap = cw < 600 ? 28 : 36;
+    const gap = cw < 600 ? 28 : 34;
     dots = [];
+    cols = Math.ceil(cw / gap);
     for (let y = gap / 2; y < ch; y += gap) {
-      for (let x = gap / 2; x < cw; x += gap) dots.push({ ox: x, oy: y, x, y });
+      for (let c = 0; c < cols; c++) {
+        const x = gap / 2 + c * gap;
+        dots.push({ ox: x, oy: y, x, y, near: 0 });
+      }
     }
   };
   readColors();
   buildField();
   addEventListener('resize', buildField);
-  new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  new MutationObserver(readColors).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 
   let heroVisible = true;
   new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(canvas);
@@ -151,52 +268,156 @@
   const drawField = (t) => {
     ctx.clearRect(0, 0, cw, ch);
     const rect = canvas.getBoundingClientRect();
-    const mx = mouse.x - rect.left, my = mouse.y - rect.top;
-    const R = 160;
+    let mx = mouse.x - rect.left, my = mouse.y - rect.top;
+    // No pointer for a while (or touch device): a virtual "electron" wanders
+    if (!finePointer || t - mouse.last > 4000) {
+      mx = cw * (0.5 + 0.32 * Math.sin(t * 0.00035));
+      my = ch * (0.45 + 0.25 * Math.sin(t * 0.00052 + 1));
+    }
+    const R = Math.min(190, cw * 0.3);
     for (const d of dots) {
       const dx = d.ox - mx, dy = d.oy - my;
       const dist = Math.hypot(dx, dy);
-      let tx = d.ox, ty = d.oy, size = 1.1, near = 0;
+      let tx = d.ox, ty = d.oy;
+      d.near = 0;
       if (dist < R && !reduced) {
-        near = 1 - dist / R;
-        const push = near * near * 40;
+        d.near = 1 - dist / R;
+        const push = d.near * d.near * 34;
         tx += (dx / (dist || 1)) * push;
         ty += (dy / (dist || 1)) * push;
-        size = 1.1 + near * 2.4;
       }
-      if (!reduced) ty += Math.sin(t * 0.0012 + d.ox * 0.02) * 1.5;
+      if (!reduced) ty += Math.sin(t * 0.0012 + d.ox * 0.02) * 1.4;
       d.x = lerp(d.x, tx, 0.15);
       d.y = lerp(d.y, ty, 0.15);
-      ctx.globalAlpha = near > 0 ? 0.35 + near * 0.65 : 0.18;
-      ctx.fillStyle = near > 0.35 ? accentColor : inkColor;
+    }
+    // bonds
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < dots.length; i++) {
+      const d = dots[i];
+      if (d.near < 0.08) continue;
+      const right = (i + 1) % cols !== 0 ? dots[i + 1] : null;
+      const down = dots[i + cols];
+      const diag = right && dots[i + cols + 1];
+      ctx.globalAlpha = d.near * 0.55;
       ctx.beginPath();
-      ctx.arc(d.x, d.y, size, 0, Math.PI * 2);
+      if (right && right.near > 0.08) { ctx.moveTo(d.x, d.y); ctx.lineTo(right.x, right.y); }
+      if (down && down.near > 0.08) { ctx.moveTo(d.x, d.y); ctx.lineTo(down.x, down.y); }
+      if (diag && diag.near > 0.3) { ctx.moveTo(d.x, d.y); ctx.lineTo(diag.x, diag.y); }
+      ctx.stroke();
+    }
+    // atoms
+    for (const d of dots) {
+      ctx.globalAlpha = d.near > 0 ? 0.3 + d.near * 0.7 : 0.18;
+      ctx.fillStyle = d.near > 0.3 ? accentColor : inkColor;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, 1.1 + d.near * 2.6, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
   };
 
-  /* ---------------- Scroll-velocity marquee ---------------- */
+  /* =======================================================
+     Research lab: memristor pinched hysteresis + filament
+     ======================================================= */
+  const lab = (() => {
+    const N = 480;
+    const Ron = 1, Roff = 14, mu = 2.2;
+    const pts = [];
+    let x = 0.08;
+    // integrate a few periods so we sample a steady-state loop
+    for (let p = 0; p < 4; p++) {
+      for (let i = 0; i < N; i++) {
+        const V = Math.sin((i / N) * Math.PI * 2);
+        x += mu * V * (x * (1 - x) + 0.004) * ((Math.PI * 2) / N);
+        x = clamp(x, 0.02, 0.98);
+        if (p === 3) pts.push({ V, I: V / (Roff - (Roff - Ron) * x), x });
+      }
+    }
+    const Imax = Math.max(...pts.map((p) => Math.abs(p.I)));
+    const xs = pts.map((p) => p.x);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    pts.forEach((p) => {
+      p.px = 200 + p.V * 165;
+      p.py = 130 - (p.I / Imax) * 112;
+      p.k = (p.x - xMin) / (xMax - xMin || 1); // normalised filament length
+    });
+    const toPath = (arr) => arr.map((p, i) => (i ? 'L' : 'M') + p.px.toFixed(1) + ' ' + p.py.toFixed(1)).join('');
+    $('#ivGhost').setAttribute('d', toPath(pts) + 'Z');
+
+    // oxygen vacancies
+    const NS = 'http://www.w3.org/2000/svg';
+    const g = $('#vacancies');
+    const SLOTS = 9;
+    const filament = [];
+    for (let i = 0; i < SLOTS; i++) {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', 200 + (i % 2 ? 4 : -4));
+      c.setAttribute('cy', 113 - i * 9.6);
+      c.setAttribute('r', 4.2);
+      c.setAttribute('class', 'vac');
+      g.appendChild(c);
+      filament.push(c);
+    }
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 26; i++) {
+      const c = document.createElementNS(NS, 'circle');
+      let cx = 72 + rnd() * 256;
+      if (Math.abs(cx - 200) < 22) cx += cx < 200 ? -26 : 26;
+      c.setAttribute('cx', cx.toFixed(1));
+      c.setAttribute('cy', (38 + rnd() * 76).toFixed(1));
+      c.setAttribute('r', 2.6);
+      c.setAttribute('class', 'vac');
+      c.style.opacity = 0.28;
+      g.appendChild(c);
+    }
+
+    const path = $('#ivPath'), dot = $('#ivDot'), vEl = $('#labV'), stateEl = $('#labState');
+    const TRAIL = Math.floor(N * 0.3);
+    let visible = false;
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe($('#lab'));
+
+    const render = (t) => {
+      const i = reduced ? Math.floor(N * 0.3) : Math.floor(((t / 5200) % 1) * N);
+      const p = pts[i];
+      const trail = [];
+      for (let k = TRAIL; k >= 0; k--) trail.push(pts[(i - k + N) % N]);
+      path.setAttribute('d', toPath(trail));
+      dot.setAttribute('cx', p.px.toFixed(1));
+      dot.setAttribute('cy', p.py.toFixed(1));
+      vEl.textContent = (p.V >= 0 ? '+' : '−') + Math.abs(p.V).toFixed(2);
+      const on = p.k > 0.5;
+      stateEl.textContent = on ? 'LRS' : 'HRS';
+      stateEl.classList.toggle('is-on', on);
+      const n = p.k * SLOTS;
+      filament.forEach((c, j) => {
+        c.style.opacity = clamp(n - j, 0.12, 1);
+      });
+    };
+    render(0);
+    return { render: (t) => { if (visible) render(t); } };
+  })();
+
+  /* =======================================================
+     Main loop
+     ======================================================= */
   const marquee = $('#marquee');
   let mqX = 0, lastScroll = scrollY, velocity = 0;
 
-  /* ---------------- Main loop ---------------- */
   const loop = (t) => {
-    // cursor
     cur.x = lerp(cur.x, mouse.x, 0.2);
     cur.y = lerp(cur.y, mouse.y, 0.2);
     cursor.style.transform = `translate3d(${cur.x}px, ${cur.y}px, 0) translate(-50%, -50%)`;
 
-    // preview (slower, with tilt based on horizontal velocity)
     const vx = mouse.x - prev.x;
     prev.x = lerp(prev.x, mouse.x, 0.12);
     prev.y = lerp(prev.y, mouse.y, 0.12);
-    prev.rot = lerp(prev.rot, Math.max(-15, Math.min(15, vx * 0.15)), 0.1);
+    prev.rot = lerp(prev.rot, clamp(vx * 0.15, -15, 15), 0.1);
     preview.style.left = prev.x + 'px';
     preview.style.top = prev.y + 'px';
     preview.style.rotate = prev.rot + 'deg';
 
-    // marquee
     const sy = scrollY;
     velocity = lerp(velocity, sy - lastScroll, 0.1);
     lastScroll = sy;
@@ -204,25 +425,27 @@
       mqX -= 1 + Math.abs(velocity) * 0.6;
       const half = marquee.scrollWidth / 2;
       if (half && -mqX >= half) mqX += half;
-      marquee.style.transform = `translate3d(${mqX}px,0,0) skewX(${Math.max(-12, Math.min(12, -velocity * 0.4))}deg)`;
+      marquee.style.transform = `translate3d(${mqX}px,0,0) skewX(${clamp(-velocity * 0.4, -12, 12)}deg)`;
     }
 
     if (heroVisible) drawField(t);
+    if (!reduced) lab.render(t);
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
 
-  /* ---------------- Reveal on scroll ---------------- */
+  /* =======================================================
+     Reveal on scroll + counters
+     ======================================================= */
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;
       e.target.classList.add('in');
       io.unobserve(e.target);
     });
-  }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   $$('.reveal, .contact__title').forEach((el) => io.observe(el));
 
-  /* ---------------- Counters ---------------- */
   const countIO = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;
@@ -239,29 +462,9 @@
   }, { threshold: 0.6 });
   $$('[data-count]').forEach((el) => countIO.observe(el));
 
-  /* ---------------- Word-by-word scroll scrub ---------------- */
-  $$('[data-scrub]').forEach((el) => {
-    const words = el.textContent.trim().split(/\s+/);
-    el.textContent = '';
-    const spans = words.map((w, i) => {
-      const s = document.createElement('span');
-      s.className = 'w';
-      s.textContent = w;
-      el.appendChild(s);
-      if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
-      return s;
-    });
-    const update = () => {
-      const r = el.getBoundingClientRect();
-      const p = (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35);
-      const n = Math.floor(Math.max(0, Math.min(1, p)) * spans.length);
-      spans.forEach((s, i) => s.classList.toggle('on', i < n));
-    };
-    addEventListener('scroll', update, { passive: true });
-    update();
-  });
-
-  /* ---------------- Stacking cards scale down as next card arrives ---------------- */
+  /* =======================================================
+     Stacking cards shrink as the next one arrives
+     ======================================================= */
   const cards = $$('.card');
   if (!reduced) {
     const updateCards = () => {
@@ -269,7 +472,7 @@
         const next = cards[i + 1];
         if (!next) return;
         const r = next.getBoundingClientRect();
-        const p = Math.max(0, Math.min(1, 1 - (r.top - 100) / innerHeight));
+        const p = clamp(1 - (r.top - 100) / innerHeight, 0, 1);
         card.style.transform = `scale(${1 - p * 0.06})`;
         card.style.filter = `brightness(${1 - p * 0.35})`;
       });
