@@ -224,6 +224,45 @@
     item.insertBefore(tag, $('.pub__year', item));
   });
 
+  /* Floating material card: follows the cursor horizontally but sits
+     above the hovered row (or below it near the top), never over its title */
+  const preview = $('.pub-preview');
+  const previewInner = $('.pub-preview__inner');
+  const previewTag = $('.pub-preview__tag');
+  const prev = { x: mouse.x, y: mouse.y, rot: 0, row: null };
+  if (finePointer) {
+    $$('.pub').forEach((item) => {
+      item.addEventListener('mouseenter', () => {
+        const c1 = item.dataset.color, c2 = item.dataset.color2 || c1;
+        previewInner.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+        previewTag.textContent = item.dataset.tag;
+        if (!prev.row) { prev.x = mouse.x; prev.y = item.getBoundingClientRect().top; }
+        prev.row = item;
+        preview.classList.add('is-on');
+      });
+      item.addEventListener('mouseleave', () => {
+        prev.row = null;
+        preview.classList.remove('is-on');
+      });
+    });
+  }
+  const placePreview = () => {
+    if (!prev.row) return;
+    const r = prev.row.getBoundingClientRect();
+    const w = preview.offsetWidth, h = preview.offsetHeight;
+    const gap = 14;
+    let ty = r.top - gap - h / 2;
+    if (r.top - gap - h < 80) ty = r.bottom + gap + h / 2;
+    const tx = clamp(mouse.x, w / 2 + 16, innerWidth - w / 2 - 16);
+    const vx = tx - prev.x;
+    prev.x = lerp(prev.x, tx, 0.14);
+    prev.y = lerp(prev.y, ty, 0.2);
+    prev.rot = lerp(prev.rot, clamp(vx * 0.08, -8, 8), 0.12);
+    preview.style.left = prev.x + 'px';
+    preview.style.top = prev.y + 'px';
+    preview.style.rotate = prev.rot + 'deg';
+  };
+
   /* =======================================================
      Hero: crystal lattice that bonds around the cursor
      ======================================================= */
@@ -411,6 +450,7 @@
     cur.x = lerp(cur.x, mouse.x, 0.2);
     cur.y = lerp(cur.y, mouse.y, 0.2);
     cursor.style.transform = `translate3d(${cur.x}px, ${cur.y}px, 0) translate(-50%, -50%)`;
+    placePreview();
 
     const sy = scrollY;
     velocity = lerp(velocity, sy - lastScroll, 0.1);
