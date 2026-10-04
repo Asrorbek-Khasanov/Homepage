@@ -157,6 +157,12 @@
   updateClock();
   setInterval(updateClock, 1000);
 
+  const syncThemeColor = () => {
+    const meta = $('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+  };
+  syncThemeColor();
+
   /* =======================================================
      Theme toggle
      ======================================================= */
@@ -164,6 +170,7 @@
     const next = root.dataset.theme === 'light' ? 'dark' : 'light';
     root.dataset.theme = next;
     store.set('theme', next);
+    syncThemeColor();
   });
 
   /* =======================================================
@@ -508,7 +515,7 @@
         const r = next.getBoundingClientRect();
         const p = clamp(1 - (r.top - 100) / innerHeight, 0, 1);
         card.style.transform = `scale(${1 - p * 0.06})`;
-        card.style.filter = `brightness(${1 - p * 0.35})`;
+        card.style.setProperty('--dim', p.toFixed(3));
       });
     };
     addEventListener('scroll', updateCards, { passive: true });
