@@ -41,6 +41,7 @@ window.I18N = {
     'research.vac': 'Kislorod vakansiyalari',
 
     'pubs.label': '(03) — Tanlangan nashrlar',
+    'pubs.journal': 'Xalqaro jurnal',
     'pubs.note': '2024–2025 o‘quv yilida respublika konferensiyalarida 18 ta va xalqaro jurnalda 1 ta maqola chop etilgan.',
 
     'skills.label': '(04) — Ko‘nikmalar',
@@ -122,6 +123,7 @@ window.I18N = {
     'research.vac': 'Oxygen vacancies',
 
     'pubs.label': '(03) — Selected publications',
+    'pubs.journal': 'International journal',
     'pubs.note': 'In the 2024–2025 academic year: 18 papers in national conference proceedings and 1 paper in an international journal.',
 
     'skills.label': '(04) — Expertise',
@@ -203,6 +205,7 @@ window.I18N = {
     'research.vac': 'Кислородные вакансии',
 
     'pubs.label': '(03) — Избранные публикации',
+    'pubs.journal': 'Международный журнал',
     'pubs.note': 'В 2024–2025 учебном году опубликовано 18 статей в материалах республиканских конференций и 1 статья в международном журнале.',
 
     'skills.label': '(04) — Компетенции',

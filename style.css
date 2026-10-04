@@ -26,21 +26,21 @@
   --ease-io: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-:root[data-theme="light"] {
-  /* "Clean room": cool white, white surfaces, silicon-wafer blue */
-  --bg: #f5f6f8;
-  --bg-2: #ffffff;
-  --ink: #0c1222;
-  --muted: #5a6274;
-  --line: rgba(12, 18, 34, 0.10);
-  --accent: #2f45ff;
-  --accent-ink: #ffffff;
-  --ion: #ff6a2b;
-  --electrode: #1b2232;
-  --electrode-ink: #e9ecf3;
-  --shadow: 0 1px 2px rgba(12, 18, 34, .04), 0 18px 40px -18px rgba(12, 18, 34, .18);
-  --grain: .022;
-  --dim-k: .04;
+:root[data-palette="midnight"] {
+  /* "Midnight": deep navy, ice-blue accent — low glare, easy on the eyes */
+  --bg: #0b1222;
+  --bg-2: #121b30;
+  --ink: #e6ecf8;
+  --muted: #94a0ba;
+  --line: rgba(230, 236, 248, 0.11);
+  --accent: #6fdcff;
+  --accent-ink: #06121d;
+  --ion: #ffa564;
+  --electrode: rgba(148, 160, 186, .5);
+  --electrode-ink: #0b1222;
+  --shadow: none;
+  --grain: .045;
+  --dim-k: .3;
 }
 
 /* =========================================================
@@ -197,7 +197,7 @@ body:not(.is-loading) .preloader { transform: translateY(-100%); }
   width: 14px; height: 14px; border-radius: 50%; background: currentColor;
   transition: transform .5s var(--ease);
 }
-:root[data-theme="light"] .theme-toggle__dot { transform: translateX(18px); }
+:root[data-palette="midnight"] .theme-toggle__dot { transform: translateX(18px); }
 
 @media (max-width: 1020px) { .nav__clock { display: none; } }
 @media (max-width: 860px) { .nav__links { display: none; } }
@@ -338,7 +338,6 @@ body.is-ready .hero__bottom { opacity: 1; transform: none; }
   background: var(--accent); mix-blend-mode: multiply; opacity: .28;
   transition: opacity .8s var(--ease);
 }
-:root[data-theme="light"] .portrait__frame::after { mix-blend-mode: screen; opacity: .22; }
 .portrait:hover img { filter: none; transform: scale(1); }
 .portrait:hover .portrait__frame::after { opacity: 0; }
 .portrait figcaption { display: flex; justify-content: space-between; color: var(--muted); margin-top: 12px; }
@@ -448,13 +447,34 @@ body.is-ready .hero__bottom { opacity: 1; transform: none; }
   font-size: clamp(18px, 1.9vw, 30px); line-height: 1.2; letter-spacing: -0.02em;
   max-width: 1000px;
 }
-.pub__venue { display: block; color: var(--muted); margin-top: 10px; text-transform: none; transition: color .4s; }
+.pub__venue { display: block; color: var(--muted); margin-top: 6px; text-transform: none; transition: color .4s; }
 .pub__idx, .pub__year { color: var(--muted); transition: color .4s; }
+.pub__authors { color: var(--muted); font-size: 15px; margin-top: 10px; transition: color .4s; }
+.pub__authors b { color: var(--ink); font-weight: 600; transition: color .4s; }
+.pub__badge {
+  display: inline-block; margin: 12px 12px 0 0; padding: 5px 10px; border-radius: 99px;
+  background: var(--accent); color: var(--accent-ink); font-size: 11px;
+}
+.pub__links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.pub__btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 99px; text-transform: none;
+  border: 1px solid var(--line); color: var(--ink);
+  position: relative; z-index: 1;
+  transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s;
+}
+.pub__btn:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pub__btn:focus-visible, .lang__btn:focus-visible, .theme-toggle:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px;
+}
 .pub__year { text-align: right; }
 @media (hover: hover) {
   .pub:hover::before { transform: scaleY(1); transform-origin: top; }
   .pub:hover { color: var(--bg); padding-left: 24px; padding-right: 24px; }
-  .pub:hover .pub__idx, .pub:hover .pub__venue, .pub:hover .pub__year { color: var(--bg); }
+  .pub:hover .pub__idx, .pub:hover .pub__venue, .pub:hover .pub__year,
+  .pub:hover .pub__authors, .pub:hover .pub__authors b { color: var(--bg); }
+  .pub:hover .pub__btn { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+  .pub:hover .pub__btn:hover { background: var(--bg); color: var(--ink); border-color: var(--bg); }
 }
 .pubs__note { color: var(--muted); margin-top: 28px; text-transform: none; max-width: 640px; }
 @media (max-width: 760px) {
@@ -492,7 +512,6 @@ body.is-ready .hero__bottom { opacity: 1; transform: none; }
   font-family: var(--f-display); font-weight: 800; font-size: 30px;
   color: #0b0b0c; letter-spacing: -0.03em;
 }
-@media (hover: none) { .pub-preview { display: none; } }
 
 .pub__tag {
   align-self: center;

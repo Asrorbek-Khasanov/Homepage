@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;800&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script>
-    try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    try { if (localStorage.getItem('palette') === 'midnight') document.documentElement.dataset.palette = 'midnight'; } catch (e) {}
   </script>
 </head>
 <body class="is-loading">
@@ -51,7 +51,7 @@
         <button class="lang__btn mono" data-lang="en">EN</button>
         <button class="lang__btn mono" data-lang="ru">RU</button>
       </div>
-      <button class="theme-toggle" id="themeToggle" aria-label="Theme" data-magnetic>
+      <button class="theme-toggle" id="themeToggle" aria-label="Graphite / Midnight" data-magnetic>
         <span class="theme-toggle__dot"></span>
       </button>
     </div>
@@ -129,7 +129,7 @@
               <span class="stat__label mono" data-i18n="stat.papers">Ilmiy maqolalar</span>
             </div>
             <div class="stat reveal">
-              <span class="stat__num" data-count="8">0</span>
+              <span class="stat__num" data-count="9">0</span>
               <span class="stat__label mono" data-i18n="stat.selected">Tanlangan nashrlar</span>
             </div>
             <div class="stat reveal">
@@ -196,70 +196,92 @@
     <section class="pubs section" id="pubs">
       <div class="section__head">
         <div class="section__label mono reveal" data-i18n="pubs.label">(03) — Tanlangan nashrlar</div>
-        <span class="mono muted reveal">2024 — 2025</span>
+        <span class="mono muted reveal">2024 — 2026</span>
       </div>
 
       <ol class="pubs__list">
-        <li class="pub reveal" data-tag="HfO₂" data-color="#d4ff3a" data-color2="#00e5a0">
+        <li class="pub reveal pub--journal" data-tag="MoS₂ · DFT" data-color="#5ee1ff" data-color2="#7c4dff">
           <span class="pub__idx mono">01</span>
           <div class="pub__body">
+            <h3 class="pub__title">First-Principles Investigation of the Electronic Properties of Monolayer MoS₂ Using DFT-Based QuantumATK Simulations</h3>
+            <p class="pub__authors">M. Khalilloev, B. Jabbarova, <b>A. Hasanov</b>, G. Ibodullaev, A. Atamuratov</p>
+            <span class="pub__venue mono">East European Journal of Physics, No. 1, pp. 221–227 (2026)</span>
+              <span class="pub__badge mono" data-i18n="pubs.journal">Xalqaro jurnal</span>
+            <div class="pub__links">
+              <a class="pub__btn mono" href="papers/2026-EEJP-MoS2-DFT-QuantumATK.pdf" target="_blank" rel="noopener">PDF ↗</a>
+              <a class="pub__btn mono" href="https://doi.org/10.26565/2312-4334-2026-1-23" target="_blank" rel="noopener">DOI: 10.26565/2312-4334-2026-1-23 ↗</a>
+            </div>
+          </div>
+          <span class="pub__year mono">2026</span>
+        </li>
+        <li class="pub reveal" data-tag="HfO₂" data-color="#d4ff3a" data-color2="#00e5a0">
+          <span class="pub__idx mono">02</span>
+          <div class="pub__body">
             <h3 class="pub__title">Parametric Sensitivity of HfO₂-Based Memristors: COMSOL–MATLAB Modeling of I–V Characteristics</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, Z. A. Avezmuratova, D. R. Rajapov, E. Sh. Khaitbayev, D. Q. Ismoilov</p>
             <span class="pub__venue mono">Int. Conf. “Recent achievements in photonics and quantum optics”, Urgench</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="HfOₓ" data-color="#ff4d2e" data-color2="#ffb800">
-          <span class="pub__idx mono">02</span>
+          <span class="pub__idx mono">03</span>
           <div class="pub__body">
             <h3 class="pub__title">The Impact of Electrical Conductivity on HfO Memristor Performance</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, D. Rajapov, A. Abdikarimov, E. Khaitbaev</p>
             <span class="pub__venue mono">1st Int. Conf. on Low Dimensional Materials</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="SiO₂/HfO₂" data-color="#3d5afe" data-color2="#00e5ff">
-          <span class="pub__idx mono">03</span>
+          <span class="pub__idx mono">04</span>
           <div class="pub__body">
             <h3 class="pub__title">Impact of Different SiO₂ and HfO₂ Thickness Combinations on Short-Channel Effects in Nanosheet Transistors with an EOT of 0.7 nm: A Sentaurus Process Simulation Study</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, M. M. Khalilloyev, D. R. Rajapov, Z. A. Avezmuratova, E. Sh. Khaitbaev</p>
             <span class="pub__venue mono">Int. Conf. “Recent achievements in photonics and quantum optics”, Urgench</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="NSFET" data-color="#e040fb" data-color2="#ff4081">
-          <span class="pub__idx mono">04</span>
+          <span class="pub__idx mono">05</span>
           <div class="pub__body">
             <h3 class="pub__title">Investigation of Self-Heating Phenomena in Nanosheet FETs Through TCAD-Based Process Simulations</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, A. E. Atamuratov, D. R. Rajapov, H. Sh. Matyoqubov, Z. A. Avezmuratova, E. Sh. Khaitbaev</p>
             <span class="pub__venue mono">Int. Conf. “Recent achievements in photonics and quantum optics”, Urgench</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="MOSFET" data-color="#ffb800" data-color2="#d4ff3a">
-          <span class="pub__idx mono">05</span>
+          <span class="pub__idx mono">06</span>
           <div class="pub__body">
             <h3 class="pub__title">Using COMSOL Multiphysics to Study the Effect of MOSFET Gate Dielectric Thickness and External Temperature on Its Output Characteristics</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, D. Rajapov, M. Khalilloev, E. Khaitbaev</p>
             <span class="pub__venue mono">1st Int. Conf. on Low Dimensional Materials</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="2-CH NS" data-color="#00c853" data-color2="#00e5ff">
-          <span class="pub__idx mono">06</span>
+          <span class="pub__idx mono">07</span>
           <div class="pub__body">
             <h3 class="pub__title">Using COMSOL Multiphysics to Study the Effect of 2-Channel Nanosheet Gate Insulator Material and External Temperature on Its Output Characteristics</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, D. Rajapov, M. Khalilloev, E. Khaitbaev</p>
             <span class="pub__venue mono">Int. Conf. on Fundamental and Applied Research in Physics, Tashkent</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="PCF" data-color="#00b0ff" data-color2="#7c4dff">
-          <span class="pub__idx mono">07</span>
+          <span class="pub__idx mono">08</span>
           <div class="pub__body">
             <h3 class="pub__title">Design and Analysis of a Photonic Crystal Fiber-Based Biosensor for Refractive Index Detection</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, D. R. Jumanazarov, A. R. Khaydarboyev, B. U. Allaberganova, N. N. Ismailova</p>
             <span class="pub__venue mono">Int. Conf. “Recent achievements in photonics and quantum optics”, Urgench</span>
           </div>
           <span class="pub__year mono">2024</span>
         </li>
         <li class="pub reveal" data-tag="MoS₂/Gr" data-color="#ff4081" data-color2="#ffb800">
-          <span class="pub__idx mono">08</span>
+          <span class="pub__idx mono">09</span>
           <div class="pub__body">
             <h3 class="pub__title">Theoretical Analysis of Charge Transfer and Work Function Modulation at MoS₂/Graphene Heterointerface</h3>
+            <p class="pub__authors"><b>A. Hasanov</b>, Sh. Eshimmetova, D. Ismoilov</p>
             <span class="pub__venue mono">Open Science Framework (OSF)</span>
           </div>
           <span class="pub__year mono">2024</span>

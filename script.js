@@ -167,9 +167,10 @@
      Theme toggle
      ======================================================= */
   $('#themeToggle').addEventListener('click', () => {
-    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
-    root.dataset.theme = next;
-    store.set('theme', next);
+    const next = root.dataset.palette === 'midnight' ? 'graphite' : 'midnight';
+    if (next === 'midnight') root.dataset.palette = 'midnight';
+    else delete root.dataset.palette;
+    store.set('palette', next);
     syncThemeColor();
   });
 
@@ -237,9 +238,10 @@
   const previewInner = $('.pub-preview__inner');
   const previewTag = $('.pub-preview__tag');
   const prev = { x: mouse.x, y: mouse.y, rot: 0, row: null };
-  if (finePointer) {
+  {
     $$('.pub').forEach((item) => {
-      item.addEventListener('mouseenter', () => {
+      item.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'mouse') return;
         const c1 = item.dataset.color, c2 = item.dataset.color2 || c1;
         previewInner.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
         previewTag.textContent = item.dataset.tag;
@@ -247,7 +249,7 @@
         prev.row = item;
         preview.classList.add('is-on');
       });
-      item.addEventListener('mouseleave', () => {
+      item.addEventListener('pointerleave', () => {
         prev.row = null;
         preview.classList.remove('is-on');
       });
@@ -299,7 +301,7 @@
   readColors();
   buildField();
   addEventListener('resize', buildField);
-  new MutationObserver(readColors).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  new MutationObserver(readColors).observe(root, { attributes: true, attributeFilter: ['data-palette'] });
 
   let heroVisible = true;
   new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(canvas);

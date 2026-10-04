@@ -22,6 +22,7 @@ python3 -m http.server 8000
 | `style.css` | Dizayn; ranglar va shriftlar `:root` tokenlarida |
 | `script.js` | Animatsiyalar, til almashtirish, memristor simulyatsiyasi |
 | `assets/` | Portret va favicon |
+| `papers/` | Maqolalarning PDF fayllari |
 
 ## Imkoniyatlar
 
@@ -31,9 +32,12 @@ python3 -m http.server 8000
   kislorod vakansiyalaridan filament hosil bo‘lishi (HRS ↔ LRS)
 - Nashrlar ro‘yxati — hover’da material formulasi bilan suzuvchi karta
 - Ustma-ust yig‘iladigan ko‘nikmalar kartalari, vaqt chizig‘i, magnit tugma
-- Qorong‘i / yorug‘ mavzu, mobil moslashuv, `prefers-reduced-motion`
+- Ikki qorong‘i mavzu: Graphite (yashil) va Midnight (to‘q ko‘k), mobil moslashuv, `prefers-reduced-motion`
 
 ## Yangi nashr qo‘shish
 
-`index.html` dagi `.pubs__list` ichiga yangi `<li class="pub reveal" ...>` qo‘shing.
-`data-tag` — kartada ko‘rinadigan formula, `data-color` / `data-color2` — gradient ranglari.
+1. PDF faylni `papers/` papkasiga qo‘ying.
+2. `index.html` dagi `.pubs__list` ichida mavjud `<li class="pub reveal" ...>` blokini nusxalab, ro‘yxat boshiga qo‘ying.
+3. Sarlavha, mualliflar (`<b>A. Hasanov</b>`), jurnal, yil, PDF va DOI havolasini almashtiring.
+4. `data-tag` — kartada ko‘rinadigan formula, `data-color` / `data-color2` — gradient ranglari.
+5. Tartib raqamlarini (`01`, `02`, …) va “Tanlangan nashrlar” sonini (`data-count`) yangilang.
