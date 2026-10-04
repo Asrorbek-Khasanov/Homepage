@@ -213,23 +213,16 @@
   }
 
   /* =======================================================
-     Publication preview following the cursor
+     Publication material tags (coloured on hover)
      ======================================================= */
-  const preview = $('.pub-preview');
-  const previewInner = $('.pub-preview__inner');
-  const previewTag = $('.pub-preview__tag');
-  const prev = { x: mouse.x, y: mouse.y, rot: 0 };
-  if (finePointer) {
-    $$('.pub').forEach((item) => {
-      item.addEventListener('mouseenter', () => {
-        const c1 = item.dataset.color, c2 = item.dataset.color2 || c1;
-        previewInner.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
-        previewTag.textContent = item.dataset.tag;
-        preview.classList.add('is-on');
-      });
-      item.addEventListener('mouseleave', () => preview.classList.remove('is-on'));
-    });
-  }
+  $$('.pub').forEach((item) => {
+    const tag = document.createElement('span');
+    tag.className = 'pub__tag';
+    tag.textContent = item.dataset.tag;
+    tag.style.setProperty('--c1', item.dataset.color);
+    tag.style.setProperty('--c2', item.dataset.color2 || item.dataset.color);
+    item.insertBefore(tag, $('.pub__year', item));
+  });
 
   /* =======================================================
      Hero: crystal lattice that bonds around the cursor
@@ -345,31 +338,40 @@
     const toPath = (arr) => arr.map((p, i) => (i ? 'L' : 'M') + p.px.toFixed(1) + ' ' + p.py.toFixed(1)).join('');
     $('#ivGhost').setAttribute('d', toPath(pts) + 'Z');
 
-    // oxygen vacancies
+    // Two filament species: oxygen vacancies (VCM) and metal ions (ECM)
     const NS = 'http://www.w3.org/2000/svg';
     const g = $('#vacancies');
     const SLOTS = 9;
-    const filament = [];
-    for (let i = 0; i < SLOTS; i++) {
-      const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', 200 + (i % 2 ? 4 : -4));
-      c.setAttribute('cy', 113 - i * 9.6);
-      c.setAttribute('r', 4.2);
-      c.setAttribute('class', 'vac');
-      g.appendChild(c);
-      filament.push(c);
-    }
+    const COLS = [{ x: 240, cls: 'vac', r: 4.2 }, { x: 160, cls: 'ion', r: 4.6 }];
+    const filaments = COLS.map(({ x, cls, r }) => {
+      const arr = [];
+      for (let i = 0; i < SLOTS; i++) {
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', x + (i % 2 ? 4 : -4));
+        c.setAttribute('cy', 113 - i * 9.6);
+        c.setAttribute('r', r);
+        c.setAttribute('class', cls);
+        g.appendChild(c);
+        arr.push(c);
+      }
+      return arr;
+    });
     let seed = 7;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    for (let i = 0; i < 26; i++) {
+    for (let i = 0; i < 34; i++) {
       const c = document.createElementNS(NS, 'circle');
-      let cx = 72 + rnd() * 256;
-      if (Math.abs(cx - 200) < 22) cx += cx < 200 ? -26 : 26;
+      let cx, cy, tries = 0;
+      do {
+        cx = 72 + rnd() * 256;
+        cy = 38 + rnd() * 76;
+        tries++;
+      } while (tries < 20 && (COLS.some((col) => Math.abs(cx - col.x) < 18) || (cx < 130 && cy < 56)));
+      const ion = i % 5 < 2;
       c.setAttribute('cx', cx.toFixed(1));
-      c.setAttribute('cy', (38 + rnd() * 76).toFixed(1));
-      c.setAttribute('r', 2.6);
-      c.setAttribute('class', 'vac');
-      c.style.opacity = 0.28;
+      c.setAttribute('cy', cy.toFixed(1));
+      c.setAttribute('r', ion ? 3 : 2.6);
+      c.setAttribute('class', ion ? 'ion' : 'vac');
+      c.style.opacity = 0.3;
       g.appendChild(c);
     }
 
@@ -391,9 +393,9 @@
       stateEl.textContent = on ? 'LRS' : 'HRS';
       stateEl.classList.toggle('is-on', on);
       const n = p.k * SLOTS;
-      filament.forEach((c, j) => {
+      filaments.forEach((arr) => arr.forEach((c, j) => {
         c.style.opacity = clamp(n - j, 0.12, 1);
-      });
+      }));
     };
     render(0);
     return { render: (t) => { if (visible) render(t); } };
@@ -409,14 +411,6 @@
     cur.x = lerp(cur.x, mouse.x, 0.2);
     cur.y = lerp(cur.y, mouse.y, 0.2);
     cursor.style.transform = `translate3d(${cur.x}px, ${cur.y}px, 0) translate(-50%, -50%)`;
-
-    const vx = mouse.x - prev.x;
-    prev.x = lerp(prev.x, mouse.x, 0.12);
-    prev.y = lerp(prev.y, mouse.y, 0.12);
-    prev.rot = lerp(prev.rot, clamp(vx * 0.15, -15, 15), 0.1);
-    preview.style.left = prev.x + 'px';
-    preview.style.top = prev.y + 'px';
-    preview.style.rotate = prev.rot + 'deg';
 
     const sy = scrollY;
     velocity = lerp(velocity, sy - lastScroll, 0.1);

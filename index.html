@@ -125,7 +125,7 @@
 
           <div class="stats">
             <div class="stat reveal">
-              <span class="stat__num" data-count="19">0</span><span class="stat__plus">+</span>
+              <span class="stat__num" data-count="20">0</span><span class="stat__plus">+</span>
               <span class="stat__label mono" data-i18n="stat.papers">Ilmiy maqolalar</span>
             </div>
             <div class="stat reveal">
@@ -176,14 +176,17 @@
             <rect x="60" y="30" width="280" height="90" class="oxide" />
             <rect x="60" y="120" width="280" height="22" rx="3" class="electrode" />
             <text x="200" y="23" text-anchor="middle" class="dev-label" data-i18n="research.top">Yuqori elektrod</text>
-            <text x="200" y="77" text-anchor="middle" class="dev-oxide">Al₂O₃</text>
+            <text x="70" y="48" class="dev-oxide">Al₂O₃</text>
             <text x="200" y="137" text-anchor="middle" class="dev-label" data-i18n="research.bottom">Pastki elektrod</text>
             <g id="vacancies"></g>
           </svg>
 
           <figcaption class="mono">
             <span data-i18n="research.fig">Pinch-gisterezis — memristorning “barmoq izi”</span>
-            <span class="lab__legend"><i></i> <span data-i18n="research.vac">Kislorod vakansiyalari</span></span>
+            <span class="lab__legends">
+              <span class="lab__legend"><i></i> <span data-i18n="research.vac">Kislorod vakansiyalari</span></span>
+              <span class="lab__legend lab__legend--ion"><i></i> <span data-i18n="research.ion">Metall ionlari</span></span>
+            </span>
           </figcaption>
         </figure>
       </div>
@@ -263,10 +266,6 @@
         </li>
       </ol>
       <p class="pubs__note mono reveal" data-i18n="pubs.note"></p>
-
-      <div class="pub-preview" aria-hidden="true">
-        <div class="pub-preview__inner"><span class="pub-preview__tag"></span></div>
-      </div>
     </section>
 
     <!-- Skills: sticky stacking cards -->
