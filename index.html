@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ism Familiya — Creative Developer</title>
+  <meta name="description" content="Shaxsiy sahifa: dizayn, kod va raqamli tajribalar." />
+  <meta name="theme-color" content="#0b0b0c" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body class="is-loading">
+
+  <!-- Preloader -->
+  <div class="preloader" aria-hidden="true">
+    <div class="preloader__top">
+      <span class="mono">Portfolio ©2026</span>
+      <span class="mono">Yuklanmoqda</span>
+    </div>
+    <div class="preloader__count"><span id="loadCount">0</span>%</div>
+    <div class="preloader__bar"><span id="loadBar"></span></div>
+  </div>
+
+  <!-- Custom cursor -->
+  <div class="cursor" aria-hidden="true"><span class="cursor__label"></span></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a href="#top" class="nav__logo" data-magnetic>
+      <span class="nav__logo-mark">✦</span>
+      <span class="nav__logo-text">Ism<span class="muted">.</span>Familiya</span>
+    </a>
+    <nav class="nav__links" aria-label="Asosiy">
+      <a href="#work" class="roll" data-text="Ishlar"><span>Ishlar</span></a>
+      <a href="#about" class="roll" data-text="Men haqimda"><span>Men haqimda</span></a>
+      <a href="#services" class="roll" data-text="Xizmatlar"><span>Xizmatlar</span></a>
+      <a href="#contact" class="roll" data-text="Aloqa"><span>Aloqa</span></a>
+    </nav>
+    <div class="nav__right">
+      <span class="mono nav__clock">TAS <span id="clock">--:--</span></span>
+      <button class="theme-toggle" id="themeToggle" aria-label="Mavzuni almashtirish" data-magnetic>
+        <span class="theme-toggle__dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero">
+      <canvas class="hero__field" id="field" aria-hidden="true"></canvas>
+
+      <div class="hero__meta mono">
+        <span class="status"><i></i> Yangi loyihalar uchun ochiq</span>
+        <span>Toshkent, O'zbekiston — 41.3°N 69.2°E</span>
+      </div>
+
+      <h1 class="hero__title">
+        <span class="line"><span class="split">Creative</span></span>
+        <span class="line line--indent"><em class="serif-ish">&amp;</em> <span class="split">Developer</span></span>
+      </h1>
+
+      <div class="hero__bottom">
+        <p class="hero__intro">
+          Men g'oyalarni <span class="hl">jonli</span>, tez va esda qoladigan
+          raqamli tajribalarga aylantiraman — dizayn va kod chegarasida.
+        </p>
+        <a href="#work" class="hero__scroll mono" data-cursor="Pastga">
+          <span class="hero__scroll-line"></span> Scroll
+        </a>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <section class="marquee" aria-label="Ko'nikmalar">
+      <div class="marquee__track" id="marquee">
+        <div class="marquee__group">
+          <span>UI/UX Dizayn</span><b>✦</b><span>Frontend</span><b>✦</b><span>Motion</span><b>✦</b><span>Brending</span><b>✦</b><span>Web GL</span><b>✦</b>
+        </div>
+        <div class="marquee__group" aria-hidden="true">
+          <span>UI/UX Dizayn</span><b>✦</b><span>Frontend</span><b>✦</b><span>Motion</span><b>✦</b><span>Brending</span><b>✦</b><span>Web GL</span><b>✦</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about section" id="about">
+      <div class="section__label mono reveal">(01) — Men haqimda</div>
+      <p class="about__text" data-scrub>
+        Salom! Men dizayner va dasturchiman. Oddiy veb-saytlar emas, balki
+        foydalanuvchini hayratga soladigan, harakat va mazmunga boy tajribalar
+        yarataman. Har bir piksel va har bir qator kod — bitta hikoyaning qismi.
+      </p>
+
+      <div class="stats">
+        <div class="stat reveal">
+          <span class="stat__num" data-count="5">0</span><span class="stat__plus">+</span>
+          <span class="stat__label mono">Yillik tajriba</span>
+        </div>
+        <div class="stat reveal">
+          <span class="stat__num" data-count="40">0</span><span class="stat__plus">+</span>
+          <span class="stat__label mono">Tugallangan loyihalar</span>
+        </div>
+        <div class="stat reveal">
+          <span class="stat__num" data-count="12">0</span>
+          <span class="stat__label mono">Mamnun mijozlar</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Work -->
+    <section class="work section" id="work">
+      <div class="section__head">
+        <div class="section__label mono reveal">(02) — Tanlangan ishlar</div>
+        <span class="mono muted reveal">2022 — 2026</span>
+      </div>
+
+      <ul class="work__list">
+        <li class="work__item reveal" data-cursor="Ko'rish" data-color="#ff4d2e" data-color2="#ffb800">
+          <a href="#">
+            <span class="work__idx mono">01</span>
+            <span class="work__title">Nova Studio</span>
+            <span class="work__cat mono">Brending · Web</span>
+            <span class="work__year mono">2026</span>
+          </a>
+        </li>
+        <li class="work__item reveal" data-cursor="Ko'rish" data-color="#3d5afe" data-color2="#00e5ff">
+          <a href="#">
+            <span class="work__idx mono">02</span>
+            <span class="work__title">Orbit App</span>
+            <span class="work__cat mono">Mobil · UI/UX</span>
+            <span class="work__year mono">2025</span>
+          </a>
+        </li>
+        <li class="work__item reveal" data-cursor="Ko'rish" data-color="#c6ff00" data-color2="#00c853">
+          <a href="#">
+            <span class="work__idx mono">03</span>
+            <span class="work__title">Samarqand 3D</span>
+            <span class="work__cat mono">WebGL · Motion</span>
+            <span class="work__year mono">2024</span>
+          </a>
+        </li>
+        <li class="work__item reveal" data-cursor="Ko'rish" data-color="#e040fb" data-color2="#ff4081">
+          <a href="#">
+            <span class="work__idx mono">04</span>
+            <span class="work__title">Pulse Market</span>
+            <span class="work__cat mono">E-commerce</span>
+            <span class="work__year mono">2023</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="work__preview" aria-hidden="true">
+        <div class="work__preview-inner">
+          <span class="work__preview-title"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services: sticky stacking cards -->
+    <section class="services section" id="services">
+      <div class="section__label mono reveal">(03) — Nima qila olaman</div>
+      <div class="cards">
+        <article class="card" style="--i:0">
+          <span class="card__num mono">01</span>
+          <h3 class="card__title">Dizayn</h3>
+          <p>Interfeyslar, vizual identifikatsiya va dizayn tizimlari. Figma'dan boshlab yakuniy pikselgacha.</p>
+          <ul class="card__tags mono"><li>UI/UX</li><li>Figma</li><li>Prototip</li><li>Brending</li></ul>
+        </article>
+        <article class="card" style="--i:1">
+          <span class="card__num mono">02</span>
+          <h3 class="card__title">Dasturlash</h3>
+          <p>Tez, moslashuvchan va qulay veb-ilovalar. Zamonaviy stack va toza arxitektura.</p>
+          <ul class="card__tags mono"><li>React</li><li>Next.js</li><li>TypeScript</li><li>Node</li></ul>
+        </article>
+        <article class="card" style="--i:2">
+          <span class="card__num mono">03</span>
+          <h3 class="card__title">Motion</h3>
+          <p>Saytga jon kirituvchi animatsiyalar, mikro-interaksiyalar va 3D tajribalar.</p>
+          <ul class="card__tags mono"><li>GSAP</li><li>Three.js</li><li>WebGL</li><li>Lottie</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact section" id="contact">
+      <div class="section__label mono reveal">(04) — Aloqa</div>
+      <h2 class="contact__title">
+        <span class="line"><span class="reveal-up">Keling,</span></span>
+        <span class="line"><span class="reveal-up">birga <span class="outline">yarataylik</span></span></span>
+      </h2>
+
+      <div class="contact__row">
+        <a href="mailto:salom@example.com" class="contact__btn" data-magnetic data-cursor="Yozish">
+          <span>Xat yozish</span>
+        </a>
+        <a href="mailto:salom@example.com" class="contact__mail roll" data-text="salom@example.com"><span>salom@example.com</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__socials">
+      <a href="#" class="roll" data-text="Telegram"><span>Telegram</span></a>
+      <a href="#" class="roll" data-text="GitHub"><span>GitHub</span></a>
+      <a href="#" class="roll" data-text="LinkedIn"><span>LinkedIn</span></a>
+      <a href="#" class="roll" data-text="Instagram"><span>Instagram</span></a>
+    </div>
+    <div class="footer__bottom mono">
+      <span>© 2026 Ism Familiya</span>
+      <span>Qo'lda yasalgan ✦ Toshkentda</span>
+      <a href="#top" class="roll" data-text="Tepaga ↑"><span>Tepaga ↑</span></a>
+    </div>
+    <div class="footer__giant" aria-hidden="true">ISM✦</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
